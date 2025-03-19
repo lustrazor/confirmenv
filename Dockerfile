@@ -45,9 +45,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
+# Expose the port the app runs on
 EXPOSE 3000
 
-ENV PORT 3000
+# Set hostname to 0.0.0.0 to allow external connections
 ENV HOSTNAME "0.0.0.0"
+ENV PORT 3000
 
+# Use node directly instead of next start
 CMD ["node", "server.js"] 
