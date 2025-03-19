@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      target: deps
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      # Add some example environment variables
+      - EXAMPLE_API_KEY=dummy-key-123
+      - DATABASE_URL=postgresql://user:password@localhost:5432/db
+      - REDIS_HOST=redis-server
+      - APP_SECRET=your-secret-key
+    # Enable hot reload
+    stdin_open: true
+    tty: true 
