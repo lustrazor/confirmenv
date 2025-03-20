@@ -2,22 +2,17 @@ export default async function Home() {
   // Get all environment variables
   const envVars = { ...process.env };
   
-  // Important Coolify variables that we want to ensure are displayed
-  const importantVars = [
-    'ARTIFACT_API_KEY',
-    'ARTIFACT_API_SECRET',
-    'ARTIFACT_URI',
-    'CONGEAL_USERNAME',
-    'MONGODB_URI'
-  ];
+  // Directly access the critical environment variables
+  const criticalVars = {
+    ARTIFACT_API_KEY: process.env.ARTIFACT_API_KEY || 'Not set',
+    ARTIFACT_API_SECRET: process.env.ARTIFACT_API_SECRET || 'Not set',
+    ARTIFACT_URI: process.env.ARTIFACT_URI || 'Not set',
+    CONGEAL_USERNAME: process.env.CONGEAL_USERNAME || 'Not set',
+    MONGODB_URI: process.env.MONGODB_URI || 'Not set'
+  };
   
-  // Filter out Next.js internal variables and system variables
+  // Filter environment variables for the secondary display
   const filteredEnvVars = Object.entries(envVars).filter(([key]) => {
-    // Always include important variables
-    if (importantVars.includes(key)) {
-      return true;
-    }
-    
     // Exclude Next.js internal variables and system variables
     return !key.startsWith('_') && 
            !key.startsWith('NEXT_') && 
@@ -64,7 +59,6 @@ export default async function Home() {
            key !== 'USER_ZDOTDIR' &&
            key !== 'WATCHPACK_WATCHER_LIMIT' &&
            key !== 'ZDOTDIR' &&
-           // Additional variables to hide
            key !== 'COOLIFY_BRANCH' &&
            key !== 'COOLIFY_RESOURCE_UUID' &&
            key !== 'HOST' &&
@@ -74,44 +68,36 @@ export default async function Home() {
            key !== 'YARN_VERSION';
   });
   
-  // Sort environment variables alphabetically
+  // Sort remaining environment variables alphabetically
   const sortedEnvVars = filteredEnvVars.sort(([a], [b]) => a.localeCompare(b));
-
-  // Extract the important variables to display at the top
-  const coolifyVars = sortedEnvVars.filter(([key]) => importantVars.includes(key));
-  const otherVars = sortedEnvVars.filter(([key]) => !importantVars.includes(key));
 
   return (
     <main className="min-h-screen p-8 bg-gray-50">
-      <div className="max-w-4xl mx-auto mt-40">
-        <h1 className="text-3xl font-bold mb-8 text-gray-400">Environment Variables</h1>
+      <div className="max-w-4xl mx-auto mt-20">
+        <h1 className="text-3xl font-bold mb-8 text-gray-700">Environment Variables</h1>
         
-        {coolifyVars.length > 0 && (
-          <>
-            <h2 className="text-xl font-semibold mb-4 text-gray-500">Coolify Variables</h2>
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
-              <div className="grid grid-cols-[auto,1fr] gap-x-4 text-gray-600">
-                {coolifyVars.map(([key, value]) => (
-                  <div key={key} className="contents">
-                    <div className="px-8 pb-1 pt-10 font-mono font-bold text-sm border-t border-gray-100">
-                      {key}
-                    </div>
-                    <div className="px-10 py-3 font-mono text-sm border-b border-gray-100 break-all bg-gray-50">
-                      {String(value)}
-                    </div>
-                  </div>
-                ))}
+        <h2 className="text-xl font-semibold mb-4 text-blue-600">Critical Variables</h2>
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-10">
+          <div className="grid grid-cols-[auto,1fr] gap-x-4">
+            {Object.entries(criticalVars).map(([key, value]) => (
+              <div key={key} className="contents">
+                <div className="px-8 pb-1 pt-6 font-mono font-bold text-sm border-t border-gray-100 text-blue-800">
+                  {key}
+                </div>
+                <div className="px-10 py-3 font-mono text-sm border-b border-gray-100 break-all bg-blue-50 text-blue-900">
+                  {String(value)}
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            ))}
+          </div>
+        </div>
         
-        <h2 className="text-xl font-semibold mb-4 text-gray-500">Other Environment Variables</h2>
+        <h2 className="text-xl font-semibold mb-4 text-gray-600">Other Environment Variables</h2>
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="grid grid-cols-[auto,1fr] gap-x-4 text-gray-600">
-            {otherVars.map(([key, value]) => (
+            {sortedEnvVars.map(([key, value]) => (
               <div key={key} className="contents">
-                <div className="px-8 pb-1 pt-10 font-mono font-bold text-sm border-t border-gray-100">
+                <div className="px-8 pb-1 pt-6 font-mono font-bold text-sm border-t border-gray-100">
                   {key}
                 </div>
                 <div className="px-10 py-3 font-mono text-sm border-b border-gray-100 break-all bg-gray-50">
@@ -122,9 +108,17 @@ export default async function Home() {
           </div>
         </div>
 
-        <p className="mt-4 text-sm text-gray-600">
-          Note: Coolify variables will appear in the top section when present.
-        </p>
+        <div className="mt-8 p-6 bg-yellow-50 rounded-lg border border-yellow-200">
+          <h3 className="text-lg font-semibold text-yellow-800 mb-2">Debug Information</h3>
+          <p className="text-sm text-yellow-700 mb-2">
+            If critical variables are showing as &quot;Not set&quot;, this could mean:
+          </p>
+          <ul className="list-disc pl-5 text-sm text-yellow-700 space-y-1">
+            <li>The environment variables are not correctly set in Coolify</li>
+            <li>The environment variables are not being passed to the container</li>
+            <li>The Node.js process cannot access the environment variables</li>
+          </ul>
+        </div>
       </div>
     </main>
   );
