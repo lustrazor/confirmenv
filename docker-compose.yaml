@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    image: ${APP_IMAGE:-ms4wso0o0wogsw8so8wgw4gs:latest}
+    environment:
+      - NODE_ENV=production
+      - ARTIFACT_API_KEY=${ARTIFACT_API_KEY}
+      - ARTIFACT_API_SECRET=${ARTIFACT_API_SECRET}
+      - ARTIFACT_URI=${ARTIFACT_URI}
+      - CONGEAL_USERNAME=${CONGEAL_USERNAME}
+      - MONGODB_URI=${MONGODB_URI}
+    restart: unless-stopped
+    ports:
+      - "3000:3000" 

@@ -7,6 +7,13 @@ ARG ARTIFACT_URI
 ARG CONGEAL_USERNAME
 ARG MONGODB_URI
 
+# Set environment variables for use at build time
+ENV ARTIFACT_API_KEY=${ARTIFACT_API_KEY:-"not_set_at_build"}
+ENV ARTIFACT_API_SECRET=${ARTIFACT_API_SECRET:-"not_set_at_build"}
+ENV ARTIFACT_URI=${ARTIFACT_URI:-"not_set_at_build"}
+ENV CONGEAL_USERNAME=${CONGEAL_USERNAME:-"not_set_at_build"}
+ENV MONGODB_URI=${MONGODB_URI:-"not_set_at_build"}
+
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
@@ -36,6 +43,12 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Pass the environment variables to the runtime container explicitly
+ENV ARTIFACT_API_KEY=${ARTIFACT_API_KEY:-"not_set_at_runtime"}
+ENV ARTIFACT_API_SECRET=${ARTIFACT_API_SECRET:-"not_set_at_runtime"}
+ENV ARTIFACT_URI=${ARTIFACT_URI:-"not_set_at_runtime"}
+ENV CONGEAL_USERNAME=${CONGEAL_USERNAME:-"not_set_at_runtime"}
+ENV MONGODB_URI=${MONGODB_URI:-"not_set_at_runtime"}
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
