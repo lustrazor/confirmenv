@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default async function Home() {
   // Get all environment variables
   const envVars = { ...process.env };
@@ -9,6 +11,18 @@ export default async function Home() {
     ARTIFACT_URI: process.env.ARTIFACT_URI || 'Not set',
     CONGEAL_USERNAME: process.env.CONGEAL_USERNAME || 'Not set',
     MONGODB_URI: process.env.MONGODB_URI || 'Not set'
+  };
+  
+  // Count total environment variables
+  const totalEnvVars = Object.keys(envVars).length;
+  
+  // Get build information
+  const buildInfo = {
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    nextVersion: process.env.NEXT_VERSION || 'Unknown',
+    nodeEnv: process.env.NODE_ENV || 'Not set'
   };
   
   // Filter environment variables for the secondary display
@@ -68,6 +82,14 @@ export default async function Home() {
            key !== 'YARN_VERSION';
   });
   
+  // Check if we have any Coolify-specific variables
+  const coolifySpecificVars = Object.entries(envVars)
+    .filter(([key]) => key.startsWith('COOLIFY_'))
+    .reduce((acc, [key, value]) => {
+      acc[key] = String(value);
+      return acc;
+    }, {} as Record<string, string>);
+  
   // Sort remaining environment variables alphabetically
   const sortedEnvVars = filteredEnvVars.sort(([a], [b]) => a.localeCompare(b));
 
@@ -116,8 +138,46 @@ export default async function Home() {
           <ul className="list-disc pl-5 text-sm text-yellow-700 space-y-1">
             <li>The environment variables are not correctly set in Coolify</li>
             <li>The environment variables are not being passed to the container</li>
+            <li>They are set as build-time variables but not passed to runtime</li>
             <li>The Node.js process cannot access the environment variables</li>
           </ul>
+          
+          <div className="mt-4 pt-4 border-t border-yellow-200">
+            <h4 className="font-semibold text-yellow-800 mb-2">System Information</h4>
+            <div className="grid grid-cols-2 gap-2 text-sm text-yellow-700">
+              <div>Node Version:</div>
+              <div>{buildInfo.nodeVersion}</div>
+              <div>Platform:</div>
+              <div>{buildInfo.platform} ({buildInfo.arch})</div>
+              <div>Node Environment:</div>
+              <div>{buildInfo.nodeEnv}</div>
+              <div>Total ENV Variables:</div>
+              <div>{totalEnvVars}</div>
+            </div>
+          </div>
+          
+          {Object.keys(coolifySpecificVars).length > 0 && (
+            <div className="mt-4 pt-4 border-t border-yellow-200">
+              <h4 className="font-semibold text-yellow-800 mb-2">Coolify Variables Detected</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm font-mono text-yellow-700">
+                {Object.entries(coolifySpecificVars).map(([key, value]) => (
+                  <React.Fragment key={key}>
+                    <div>{key}:</div>
+                    <div>{value}</div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="mt-4 pt-4 border-t border-yellow-200">
+            <p className="text-sm text-yellow-800 font-semibold">Recommended Coolify Settings:</p>
+            <ul className="list-disc pl-5 text-sm text-yellow-700 space-y-1 mt-2">
+              <li>Make sure <span className="font-mono">Build Variable</span> is checked</li>
+              <li>For variables with special characters, check <span className="font-mono">Is Literal</span></li>
+              <li>If using multiline variables, check <span className="font-mono">Is Multiline</span></li>
+            </ul>
+          </div>
         </div>
       </div>
     </main>
